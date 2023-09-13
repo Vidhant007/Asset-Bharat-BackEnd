@@ -1,6 +1,8 @@
 require("express-async-errors");
 const express = require("express");
 
+const session = require("express-session");
+const passport = require("passport");
 const helmet = require("helmet");
 const cors = require("cors");
 const xss = require("xss-clean");
@@ -18,6 +20,7 @@ const port = process.env.PORT || 3000;
 // routers
 const authorizationRouter = require("./routes/auth_route");
 const propertiesRouter = require("./routes/property_route");
+const OauthRouter = require("./routes/Oauth_route");
 
 // error handler and other middlewares
 const notFoundMiddleware = require("./middleware/not_found_middleware");
@@ -39,8 +42,27 @@ app.use(cors());
 app.use(xss());
 app.use(hpp());
 
+app.use(
+  session({
+    secret: "mysecret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+// Initializing Passport.js middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function (user, cb) {
+  cb(null, user);
+});
+
+passport.deserializeUser(function (obj, cb) {
+  cb(null, obj);
+});
 // cookie parser
-app.use(cookieParser());
+// app.use(cookieParser());
 
 // static files
 app.use(express.static("./public/uploads"));
@@ -49,7 +71,7 @@ app.use(express.static("./public/uploads"));
 // app.use("/", authenticationMiddleware, (req, res) => {
 //   res.send("This is the Asset Bharat Server");
 // });
-
+app.use("/api/v1/authorization", OauthRouter);
 app.use("/api/v1/authorization", authorizationRouter);
 app.use("/api/v1/properties", authenticationMiddleware, propertiesRouter); // usage in logic for actions inside Asset Bharat
 

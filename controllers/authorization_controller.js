@@ -1,5 +1,12 @@
 const User = require("../models/user_model");
 
+const passport = require("passport");
+
+const {
+  authenticateGoogle,
+  authenticateGoogleCallback,
+} = require("../passport_middleware");
+
 const { StatusCodes } = require("http-status-codes");
 
 const { BadRequestError, UnauthenticatedError } = require("../errors");
@@ -40,8 +47,23 @@ const loginUser = async (req, res) => {
     .json({ user: user.getPublicProfile(), token: token });
 };
 
-const logoutUser = async (req, res) => {
-  res.send("logout user"); // do I need to add anything here? // no // so the user will be logged out automatically when the token expires? // yes // okay so the logout function will be set in the front-end part? // yes
+const googleLoginUser = async (req, res, next) => {
+  console.log("google login user");
+  authenticateGoogle(req, res, next);
 };
 
-module.exports = { registerUser, loginUser };
+const googleLoginUserCallback = async (req, res, next) => {
+  console.log("google login user callback");
+  authenticateGoogleCallback(req, res, next);
+};
+
+// const logoutUser = async (req, res) => {
+//   res.send("logout user");
+// };
+
+module.exports = {
+  registerUser,
+  loginUser,
+  googleLoginUser,
+  googleLoginUserCallback,
+};
