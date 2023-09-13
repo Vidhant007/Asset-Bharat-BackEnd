@@ -5,6 +5,8 @@ require("dotenv").config();
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
+const randomPassword = Math.random().toString(36).slice(-16);
+
 passport.use(
   new GoogleStrategy(
     {
@@ -20,14 +22,13 @@ passport.use(
         firstName: profile.name.givenName,
         lastName: profile.name.familyName,
         email: profile.emails[0].value,
-        password: profile.id,
-        confirmPassword: profile.id,
+        password: randomPassword,
+        confirmPassword: randomPassword,
 
         //   image: profile.photos[0].value
       };
       try {
         let user = await User.findOne({ googleId: profile.id });
-        console.log(user);
         if (user) {
           done(null, user);
         } else {
