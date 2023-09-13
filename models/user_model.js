@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
     trim: true,
     maxLength: [30, "Your last name cannot exceed 30 characters"],
   },
+  shares: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Shares",
+  },
   createdAt: {
     type: Date,
     default: Date.now,
