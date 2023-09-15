@@ -65,7 +65,12 @@ const createPropertywithShares = async (req, res) => {
     property.originalOwner
   );
 
-  res.status(StatusCodes.CREATED).json({ property });
+  const populatedProperty = await Property.findById(property._id).populate(
+    "originalOwner",
+    "-password -shares -createdAt -updatedAt -__v -googleId"
+  );
+
+  res.status(StatusCodes.CREATED).json({ property: populatedProperty });
 };
 // GET LISTED PROPERTIES
 
