@@ -15,6 +15,16 @@ const userSchema = new mongoose.Schema({
       "Please fill a valid email address",
     ],
   },
+
+  mobileNumber: {
+    type: String,
+    required: [true, "Please enter your mobile number"],
+    trim: true,
+    unique: true,
+    minLength: [10, "Your mobile number must be 10 characters long"],
+    maxLength: [10, "Your mobile number must be 10 characters long"],
+  },
+
   password: {
     type: String,
     required: [true, "Please enter your password"],

@@ -50,7 +50,9 @@ const createProperty = async (req, res) => {
 const createPropertywithShares = async (req, res) => {
   req.body.originalOwner = req.user.userId;
 
-  const highlightedImages = req.files.map((file) => file.filename);
+  const highlightedImages = req.files.map((file) => {
+    return `http://localhost:3000/${file.filename}`;
+  });
 
   req.body.highlightedImages = highlightedImages;
 
@@ -65,15 +67,13 @@ const createPropertywithShares = async (req, res) => {
 
   res.status(StatusCodes.CREATED).json({ property });
 };
-
 // GET LISTED PROPERTIES
 
 const getListedProperties = async (req, res) => {
-  const properties = await Property.find({ listed: true }).populate({});
+  const properties = await Property.find({ listed: true });
 
-  res.status(StatusCodes.OK).json({ properties });
+  res.status(StatusCodes.OK).json({ properties: updatedProperties });
 };
-
 // GET SHARES FOR A PROPERTY
 
 const getShares = async (req, res) => {
@@ -96,3 +96,5 @@ module.exports = {
   createProperty,
   getShares,
 };
+
+//  TODO get full user when getting listed properties

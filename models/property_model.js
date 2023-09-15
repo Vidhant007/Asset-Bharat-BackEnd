@@ -144,13 +144,14 @@ const propertySchema = new mongoose.Schema({
   // },
 
   highlightedImages: {
-    type: Buffer,
+    type: [String],
     required: true,
-    minlength: 4,
+    minlength: 1,
   },
 
   // locationHighlightsImages: {
-  //   type: Buffer,
+  //   type: String,
+
   // },
 
   // legalities: {
