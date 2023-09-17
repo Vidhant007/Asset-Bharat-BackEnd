@@ -8,9 +8,11 @@ const {
   getListedProperties,
   createPropertywithShares,
   getShares,
+  getPropertyById,
 } = require("../controllers/properties_controller");
 
 router.route("/listed").get(getListedProperties);
+router.route("/getproperty").get(getPropertyById);
 // router.route("/createProperty").post(createProperty);
 router
   .route("/createProperty")
