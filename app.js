@@ -38,6 +38,7 @@ app.use(
 );
 app.use(express.json());
 app.use(helmet());
+
 app.use(cors());
 app.use(xss());
 app.use(hpp());
@@ -73,7 +74,7 @@ app.use(express.static("./public/uploads"));
 // });
 app.use("/api/v1/authorization", OauthRouter);
 app.use("/api/v1/authorization", authorizationRouter);
-app.use("/api/v1/properties", authenticationMiddleware, propertiesRouter); // usage in logic for actions inside Asset Bharat
+app.use("/api/v1/properties",  propertiesRouter); // usage in logic for actions inside Asset Bharat
 
 // error handlers
 

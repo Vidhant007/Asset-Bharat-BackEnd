@@ -77,7 +77,7 @@ const createPropertywithShares = async (req, res) => {
 const getListedProperties = async (req, res) => {
   const properties = await Property.find({ listed: true });
 
-  res.status(StatusCodes.OK).json({ properties: updatedProperties });
+  res.status(StatusCodes.OK).json({ properties: properties });
 };
 // GET SHARES FOR A PROPERTY
 
@@ -95,11 +95,32 @@ const getShares = async (req, res) => {
   res.status(StatusCodes.OK).json({ shares });
 };
 
+//gettting property by id
+const getPropertyById = async (req,res)=>{
+  try {
+    const { id } = req.query;
+
+    // Find the property by ID
+    const property = await Property.findById(id);
+     
+    if (!property) {
+      return res.status(StatusCodes.NOT_FOUND).json({ error: 'Property not found' });
+    }
+
+    // If property is found, return it in the response
+    res.status(StatusCodes.OK).json({ property });
+  } catch (error) {
+    console.error('Error fetching property by ID:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+  }
+}
+
 module.exports = {
   getListedProperties,
   createPropertywithShares,
   createProperty,
   getShares,
+  getPropertyById,
 };
 
 //  TODO get full user when getting listed properties

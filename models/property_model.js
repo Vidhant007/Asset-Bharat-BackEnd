@@ -41,6 +41,34 @@ const propertySchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+
+  price:{
+    type:Number,
+    required: true,
+  },
+
+  size:{
+    type: Number,
+    required: true,
+  },
+
+  floors:{
+    type:Number,
+    required: true,
+  },
+  info1:{
+    type:String, //short info
+    required: true,
+  },
+  info2:{
+    type:String, 
+    required: true, //semi-long info
+  }, 
+  info3:{  //detailed info
+    type:String,
+    required: true,
+  },
+
   // googleMapQuery: {
   //   type: String,
   //   required: true,
