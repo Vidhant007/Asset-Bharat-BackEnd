@@ -77,7 +77,7 @@ const createPropertywithShares = async (req, res) => {
 const getListedProperties = async (req, res) => {
   const properties = await Property.find({ listed: true });
 
-  res.status(StatusCodes.OK).json({ properties: updatedProperties });
+  res.status(StatusCodes.OK).json({ properties: properties });
 };
 // GET SHARES FOR A PROPERTY
 
