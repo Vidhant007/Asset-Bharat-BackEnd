@@ -42,30 +42,31 @@ const propertySchema = new mongoose.Schema({
     trim: true,
   },
 
-  price:{
-    type:Number,
-    required: true,
-  },
-
-  size:{
+  price: {
     type: Number,
     required: true,
   },
 
-  floors:{
-    type:Number,
+  size: {
+    type: Number,
     required: true,
   },
-  info1:{
-    type:String, //short info
+
+  floors: {
+    type: Number,
     required: true,
   },
-  info2:{
-    type:String, 
+  info1: {
+    type: String, //short info
+    required: true,
+  },
+  info2: {
+    type: String,
     required: true, //semi-long info
-  }, 
-  info3:{  //detailed info
-    type:String,
+  },
+  info3: {
+    //detailed info
+    type: String,
     required: true,
   },
 

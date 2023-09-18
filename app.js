@@ -21,6 +21,7 @@ const port = process.env.PORT || 3000;
 const authorizationRouter = require("./routes/auth_route");
 const propertiesRouter = require("./routes/property_route");
 const OauthRouter = require("./routes/Oauth_route");
+const interestedRouter = require("./routes/interested_route");
 
 // error handler and other middlewares
 const notFoundMiddleware = require("./middleware/not_found_middleware");
@@ -74,7 +75,8 @@ app.use(express.static("./public/uploads"));
 // });
 app.use("/api/v1/authorization", OauthRouter);
 app.use("/api/v1/authorization", authorizationRouter);
-app.use("/api/v1/properties",  propertiesRouter); // usage in logic for actions inside Asset Bharat
+app.use("/api/v1/properties", propertiesRouter); // usage in logic for actions inside Asset Bharat
+app.use("/api/v1/interested", interestedRouter);
 
 // error handlers
 
