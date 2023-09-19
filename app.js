@@ -22,13 +22,13 @@ const authorizationRouter = require("./routes/auth_route");
 const propertiesRouter = require("./routes/property_route");
 const OauthRouter = require("./routes/Oauth_route");
 const interestedRouter = require("./routes/interested_route");
-const profileRouter = require("./routes/profile_route");
+// const profileRouter = require("./routes/profile_route");
 
 // error handler and other middlewares
 const notFoundMiddleware = require("./middleware/not_found_middleware");
 const errorHandlerMiddleware = require("./middleware/error_handler_middleware");
 const authenticationMiddleware = require("./middleware/authentication");
-const { profile } = require("console");
+// const { profile } = require("console");
 
 //security middlewares
 
@@ -79,7 +79,7 @@ app.use("/api/v1/authorization", OauthRouter);
 app.use("/api/v1/authorization", authorizationRouter);
 app.use("/api/v1/properties", propertiesRouter); // usage in logic for actions inside Asset Bharat
 app.use("/api/v1/interested", interestedRouter);
-app.use("/api/v1/profile", profileRouter);
+// app.use("/api/v1/profile", profileRouter);
 
 // error handlers
 
