@@ -77,7 +77,7 @@ app.use(express.static("./public/uploads"));
 // });
 app.use("/api/v1/authorization", OauthRouter);
 app.use("/api/v1/authorization", authorizationRouter);
-app.use("/api/v1/properties", propertiesRouter); // usage in logic for actions inside Asset Bharat
+app.use("/api/v1/properties",propertiesRouter); // usage in logic for actions inside Asset Bharat
 app.use("/api/v1/interested", interestedRouter);
 // app.use("/api/v1/profile", profileRouter);
 
