@@ -44,7 +44,7 @@ const propertySchema = new mongoose.Schema({
 
   price: {
     type: Number,
-    required: true,
+    // required: true,
   },
 
   size: {
@@ -200,6 +200,11 @@ const propertySchema = new mongoose.Schema({
   //     trim: true,
   //   },
   // },
+});
+
+propertySchema.pre("save", async function (next) {
+  this.price = this.numberOfShares * this.shareValueinRupees;
+  next();
 });
 
 const Property = mongoose.model("Property", propertySchema);

@@ -2,6 +2,8 @@ const User = require("../models/user_model");
 const Property = require("../models/property_model");
 const Share = require("../models/share_model");
 
+const authenticationMiddleware = require("../middleware/authentication");
+
 const { StatusCodes } = require("http-status-codes");
 const {
   NotFoundError,
@@ -30,7 +32,8 @@ const createSharesForProperty = async (
       const share = new Share({
         valueInRupees: shareValueinRupees,
         property: propertyId,
-        owner: originalOwner, // Initially, the owner is the original owner
+        originalOwner: originalOwner, // Initially, the owner is the original owner
+        currentOwner: originalOwner, // Initially, the owner is the original owner
       });
       shares.push(share);
     }
@@ -96,24 +99,74 @@ const getShares = async (req, res) => {
 };
 
 //gettting property by id
-const getPropertyById = async (req,res)=>{
+const getPropertyById = async (req, res) => {
   try {
     const { id } = req.query;
 
     // Find the property by ID
     const property = await Property.findById(id);
-     
+
     if (!property) {
-      return res.status(StatusCodes.NOT_FOUND).json({ error: 'Property not found' });
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ error: "Property not found" });
     }
 
     // If property is found, return it in the response
     res.status(StatusCodes.OK).json({ property });
   } catch (error) {
-    console.error('Error fetching property by ID:', error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+    console.error("Error fetching property by ID:", error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: "Internal Server Error" });
   }
-}
+};
+
+const buyShares = async (req, res) => {
+  const {
+    params: { propertyId },
+    body: { numberOfShares },
+    user: { userId },
+  } = req;
+
+  const property = await Property.findById(propertyId);
+
+  if (!property) {
+    throw new BadRequestError("The given property or its shares don't exist");
+  }
+
+  const shares = await Share.find({ property: propertyId })
+    .sort({ shareNumber: 1 })
+    .limit(numberOfShares);
+
+  const currentOwner = shares[0].currentOwner;
+
+  listOfShares = [];
+
+  for (let i = 0; i < shares.length; i++) {
+    const share = shares[i];
+    
+    share.currentOwner = userId;
+    if (!(share.currentOwner in share.ownershipHistory)){
+      
+    share.ownershipHistory.push({
+      number: share.ownershipHistory.length + 1,
+      owner: `${currentOwner}`,
+    });
+    listOfShares.push(share);
+    await share.save();
+  }
+
+  const totalPrice = shares.reduce((total, share) => {
+    return total + share.valueInRupees;
+  }, 0);
+
+  res.json({
+    message: "Shares bought successfully",
+    totalPriceOfSelectedShares: `Rs. ${totalPrice} `,
+    listOfShares: listOfShares,
+  });
+};
 
 module.exports = {
   getListedProperties,
@@ -121,6 +174,11 @@ module.exports = {
   createProperty,
   getShares,
   getPropertyById,
+  buyShares,
 };
 
 //  TODO get full user when getting listed properties
+
+// TODO : implement LEAN in mongoose queries
+
+// TODO : Add CACHING to the application to improve performance and reduce load on the database
