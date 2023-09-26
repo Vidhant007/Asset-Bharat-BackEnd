@@ -145,34 +145,34 @@ const buyShares = async (req, res) => {
 
   for (let i = 0; i < shares.length; i++) {
     const share = shares[i];
-    
+
     share.currentOwner = userId;
-    if (!(share.currentOwner in share.ownershipHistory)){
-      
-    share.ownershipHistory.push({
-      number: share.ownershipHistory.length + 1,
-      owner: `${currentOwner}`,
+    if (!(share.currentOwner in share.ownershipHistory)) {
+      share.ownershipHistory.push({
+        number: share.ownershipHistory.length + 1,
+        owner: `${currentOwner}`,
+      });
+      listOfShares.push(share);
+      await share.save();
+    }
+
+    const totalPrice = shares.reduce((total, share) => {
+      return total + share.valueInRupees;
+    }, 0);
+
+    res.json({
+      message: "Shares bought successfully",
+      totalPriceOfSelectedShares: `Rs. ${totalPrice} `,
+      listOfShares: listOfShares,
     });
-    listOfShares.push(share);
-    await share.save();
   }
-
-  const totalPrice = shares.reduce((total, share) => {
-    return total + share.valueInRupees;
-  }, 0);
-
-  res.json({
-    message: "Shares bought successfully",
-    totalPriceOfSelectedShares: `Rs. ${totalPrice} `,
-    listOfShares: listOfShares,
-  });
 };
 
-const getFundedProperties = async (req,res) =>{
+const getFundedProperties = async (req, res) => {
   const properties = await Property.find({ funded: true });
 
   res.status(StatusCodes.OK).json({ properties: properties });
-}
+};
 
 module.exports = {
   getListedProperties,
@@ -182,8 +182,8 @@ module.exports = {
   getPropertyById,
 };
 
-//  TODO get full user when getting listed properties
+// TODO : "get full user when getting listed properties"
 
-// TODO : implement LEAN in mongoose queries
+// TODO : "implement LEAN in mongoose queries to improve performance"
 
-// TODO : Add CACHING to the application to improve performance and reduce load on the database
+// TODO : "Add CACHING to the application to improve performance and reduce load on the database"
