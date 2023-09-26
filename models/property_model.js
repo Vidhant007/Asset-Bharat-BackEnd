@@ -69,6 +69,10 @@ const propertySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  funded: {
+    type: Boolean,
+    required:true,
+  },
 
   // googleMapQuery: {
   //   type: String,

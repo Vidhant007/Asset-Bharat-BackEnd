@@ -17,7 +17,6 @@ const interestedSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    unique: [true, "Email already exists"],
   },
 
   message: {

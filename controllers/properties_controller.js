@@ -168,13 +168,18 @@ const buyShares = async (req, res) => {
   });
 };
 
+const getFundedProperties = async (req,res) =>{
+  const properties = await Property.find({ funded: true });
+
+  res.status(StatusCodes.OK).json({ properties: properties });
+}
+
 module.exports = {
   getListedProperties,
   createPropertywithShares,
   createProperty,
   getShares,
   getPropertyById,
-  buyShares,
 };
 
 //  TODO get full user when getting listed properties
