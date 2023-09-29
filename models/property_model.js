@@ -71,7 +71,7 @@ const propertySchema = new mongoose.Schema({
   },
   funded: {
     type: Boolean,
-    required:true,
+    required: true,
   },
 
   // googleMapQuery: {
@@ -179,7 +179,7 @@ const propertySchema = new mongoose.Schema({
   highlightedImages: {
     type: [String],
     required: true,
-    minlength: 1,
+    // minlength: 1,
   },
 
   // locationHighlightsImages: {

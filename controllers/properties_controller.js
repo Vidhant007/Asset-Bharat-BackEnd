@@ -180,6 +180,8 @@ module.exports = {
   createProperty,
   getShares,
   getPropertyById,
+  getFundedProperties,
+  buyShares,
 };
 
 // TODO : "get full user when getting listed properties"
