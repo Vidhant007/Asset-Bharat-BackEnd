@@ -56,6 +56,11 @@ const userSchema = new mongoose.Schema({
   googleId: {
     type: String,
   },
+
+  sharesBought: {
+    type: Array,
+    default: [],
+  },
 });
 
 userSchema.pre("save", async function (next) {

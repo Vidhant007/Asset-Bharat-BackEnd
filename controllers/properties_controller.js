@@ -24,21 +24,23 @@ const createSharesForProperty = async (
       throw new NotFoundError("Property not found");
     }
 
-    // Create an array to store the share objects
     const shares = [];
 
-    // Generate share objects and associate them with the property
+    let serialNumber = 1;
+
     for (let i = 0; i < numberOfShares; i++) {
       const share = new Share({
+        serialNumber: serialNumber,
         valueInRupees: shareValueinRupees,
         property: propertyId,
-        originalOwner: originalOwner, // Initially, the owner is the original owner
-        currentOwner: originalOwner, // Initially, the owner is the original owner
+        originalOwner: originalOwner,
+        currentOwner: originalOwner,
       });
       shares.push(share);
+
+      serialNumber++;
     }
 
-    // Insert the shares into the database
     const createdShares = await Share.insertMany(shares);
     console.log("Shares created successfully:", createdShares.length);
   } catch (error) {
@@ -112,7 +114,6 @@ const getPropertyById = async (req, res) => {
         .json({ error: "Property not found" });
     }
 
-    // If property is found, return it in the response
     res.status(StatusCodes.OK).json({ property });
   } catch (error) {
     console.error("Error fetching property by ID:", error);
@@ -121,7 +122,6 @@ const getPropertyById = async (req, res) => {
       .json({ error: "Internal Server Error" });
   }
 };
-
 const buyShares = async (req, res) => {
   const {
     params: { propertyId },
@@ -129,44 +129,121 @@ const buyShares = async (req, res) => {
     user: { userId },
   } = req;
 
-  const property = await Property.findById(propertyId);
+  try {
+    const property = await Property.findById(propertyId);
 
-  if (!property) {
-    throw new BadRequestError("The given property or its shares don't exist");
-  }
-
-  const shares = await Share.find({ property: propertyId })
-    .sort({ shareNumber: 1 })
-    .limit(numberOfShares);
-
-  const currentOwner = shares[0].currentOwner;
-
-  listOfShares = [];
-
-  for (let i = 0; i < shares.length; i++) {
-    const share = shares[i];
-
-    share.currentOwner = userId;
-    if (!(share.currentOwner in share.ownershipHistory)) {
-      share.ownershipHistory.push({
-        number: share.ownershipHistory.length + 1,
-        owner: `${currentOwner}`,
-      });
-      listOfShares.push(share);
-      await share.save();
+    if (!property) {
+      throw new BadRequestError("The given property or its shares don't exist");
     }
 
-    const totalPrice = shares.reduce((total, share) => {
-      return total + share.valueInRupees;
-    }, 0);
+    const unboughtShares = await Share.find({
+      property: propertyId,
+      $expr: { $eq: ["$currentOwner", "$originalOwner"] },
+    })
+      .sort({ serialNumber: 1 })
+      .lean();
 
-    res.json({
-      message: "Shares bought successfully",
-      totalPriceOfSelectedShares: `Rs. ${totalPrice} `,
-      listOfShares: listOfShares,
+    if (unboughtShares.length < numberOfShares) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ error: "Not enough shares available to purchase" });
+    }
+
+    const sharesToBuy = unboughtShares.slice(0, numberOfShares);
+
+    const bulkWrites = sharesToBuy.map((share) => ({
+      updateOne: {
+        filter: { _id: share._id },
+        update: {
+          $set: {
+            currentOwner: userId,
+          },
+          $push: {
+            ownershipHistory: {
+              number: share.ownershipHistory.length + 1,
+              owner: `${userId}`,
+            },
+          },
+        },
+      },
+    }));
+
+    const bulkWritesUser = sharesToBuy.map((share) => ({
+      updateOne: {
+        filter: { _id: userId },
+        update: {
+          $push: {
+            sharesBought: {
+              shareId: share._id,
+              propertyId: propertyId,
+            },
+          },
+        },
+      },
+    }));
+
+    const result = await Share.bulkWrite(bulkWrites);
+
+    const resultUser = await User.bulkWrite(bulkWritesUser);
+
+    if (result.modifiedCount !== sharesToBuy.length) {
+      throw new BadRequestError("Failed to update shares");
+    }
+
+    if (resultUser.modifiedCount !== sharesToBuy.length) {
+      throw new BadRequestError("Failed to update shares");
+    }
+
+    const updatedShares = await Share.find({
+      _id: { $in: sharesToBuy.map((share) => share._id) },
     });
+
+    // Sort the updated shares by serial number
+    updatedShares.sort((a, b) => a.serialNumber - b.serialNumber);
+
+    const listofBoughtShares = updatedShares.map((share) => share.toObject());
+
+    const totalPrice = listofBoughtShares.reduce((total, share) => {
+      return total + share.valueInRupees;
+    });
+
+    res.json({ shares: listofBoughtShares, totalValueOfShares: totalPrice });
+  } catch (error) {
+    console.error("Error buying shares:", error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: "Internal Server Error" });
   }
 };
+
+// const currentOwner = shares[0].currentOwner;
+
+// listOfShares = [];
+
+// for (let i = 0; i < shares.length; i++) {
+//   const share = shares[i];
+
+//   share.currentOwner = userId;
+//   if (!(share.currentOwner in share.ownershipHistory)) {
+//     share.ownershipHistory.push({
+//       number: share.ownershipHistory.length + 1,
+//       owner: `${currentOwner}`,
+//     });
+//     listOfShares.push(share);
+//     await share.save();
+//   }
+
+//   const totalPrice = shares.reduce((total, share) => {
+//     return total + share.valueInRupees;
+//   }, 0);
+
+//   res.json({
+//     message: "Shares bought successfully",
+//     totalPriceOfSelectedShares: `Rs. ${totalPrice} `,
+//     listOfShares: listOfShares,
+// });
+// }
+// };
 
 const getFundedProperties = async (req, res) => {
   const properties = await Property.find({ funded: true });
@@ -184,8 +261,16 @@ module.exports = {
   buyShares,
 };
 
-// TODO : "get full user when getting listed properties"
+TODO: "get full user when getting listed properties";
 
-// TODO : "implement LEAN in mongoose queries to improve performance"
+TODO: "implement LEAN in mongoose queries to improve performance";
 
-// TODO : "Add CACHING to the application to improve performance and reduce load on the database"
+TODO: "Add CACHING to the application to improve performance and reduce load on the database";
+
+TODO: "Add pagination to the application to improve performance and reduce load on the database";
+
+TODO: "Add search functionality to the application to improve performance and reduce load on the database";
+
+TODO: "Add sorting functionality to the application to improve performance and reduce load on the database";
+
+TODO: "Add more error handling and new errors to the application";

@@ -44,6 +44,7 @@ const propertySchema = new mongoose.Schema({
 
   price: {
     type: Number,
+    default: this.shareValueinRupees * this.numberOfShares,
     // required: true,
   },
 
@@ -177,7 +178,7 @@ const propertySchema = new mongoose.Schema({
   // },
 
   highlightedImages: {
-    type: [String],
+    type: [],
     required: true,
     // minlength: 1,
   },
