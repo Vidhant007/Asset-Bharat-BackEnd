@@ -4,14 +4,16 @@ require("dotenv").config();
 
 const shareSchema = new mongoose.Schema({
   serialNumber: {
-    type: Number,
-    // required: true,
+    type: String,
+    required: true,
+    unique: true,
   },
 
   valueInRupees: {
     type: Number,
     required: true,
   },
+
   property: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Property",
@@ -33,12 +35,14 @@ const shareSchema = new mongoose.Schema({
   ownershipHistory: {
     type: Array,
     required: true,
-    default: [
-      {
-        number: 1,
-        owner: this.originalOwner,
-      },
-    ],
+    default: function () {
+      return [
+        {
+          number: 1,
+          owner: this.originalOwner,
+        },
+      ];
+    },
   },
 
   createdAt: {
